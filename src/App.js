@@ -1,6 +1,6 @@
 import React, {useState, useEffect } from 'react';
 import './App.css';
-import axios from 'axios';
+import personService from './services/person';
 
 const Filter = ({filter, onChange}) => {
 
@@ -44,36 +44,48 @@ const App = () => {
   const [filter, setFilter] = useState('');
   const [personsToDisplay, setPersonsToDisplay] = useState([...persons]);
 
-  const hook = () => {
-    axios
-        .get('http://localhost:3001/persons')
-        .then(response => {
-          setPersons(response.data);
-          setPersonsToDisplay(response.data);
-        });
-  };
+  useEffect(() => {
+      personService
+          .getAll()
+          .then(initialPersons => {
+              setPersons(initialPersons);
+              setPersonsToDisplay(initialPersons);
+          });
+  }, []);
 
-  useEffect(hook, []);
+  // getAll
+  // const hook = () => {
+  //   axios
+  //       .get('http://localhost:3001/persons')
+  //       .then(response => {
+  //         setPersons(response.data);
+  //         setPersonsToDisplay(response.data);
+  //       });
+  // };
+
+  // useEffect(hook, []);
 
   const addPerson = (event) => {
-    event.preventDefault();
+      event.preventDefault();
 
-    if (persons.filter(person => person.name === newName).length > 0) {
-      return alert(`${newName} is already added to phonebook`);
-    }
+      if (persons.filter(person => person.name === newName).length > 0) {
+          return alert(`${newName} is already added to phonebook`);
+      }
 
-    const personObject = {
-      name: newName,
-      number: newNumber
-    };
+      const personObject = {
+          name: newName,
+          number: newNumber
+      };
 
-    setPersons(persons.concat(personObject));
-    setPersonsToDisplay(persons.concat(personObject));
-
-    setNewName('');
-    setNewNumber('');
-    setFilter('');
-
+      personService
+          .create(personObject)
+          .then(returnedPerson => {
+              setPersons(persons.concat(returnedPerson));
+              setPersonsToDisplay(persons.concat(returnedPerson));
+              setNewName('');
+              setNewNumber('');
+              setFilter('');
+        });
   }
 
   const handleNewName = (event) => {
