@@ -76,24 +76,39 @@ const App = () => {
   const addPerson = (event) => {
       event.preventDefault();
 
-      if (persons.filter(person => person.name === newName).length > 0) {
-          return alert(`${newName} is already added to phonebook`);
+      const newPerson = persons.filter(person => person.name === newName);
+      if (newPerson.length > 0) {
+          if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+              const updatedPerson = {...newPerson[0], number: newNumber};
+              personService
+                  .update(updatedPerson.id, updatedPerson)
+                  .then(returnedPerson => {
+                      const newPersons = persons.map(p => p.id !== returnedPerson.id ? p : returnedPerson);
+                      
+                      setPersons(newPersons);
+                      setPersonsToDisplay([...newPersons]);
+                      setNewName('');
+                      setNewNumber('');
+                      setFilter('');
+                  })
+          }
+      } else {
+
+          const personObject = {
+              name: newName,
+              number: newNumber
+          };
+
+          personService
+              .create(personObject)
+              .then(returnedPerson => {
+                  setPersons(persons.concat(returnedPerson));
+                  setPersonsToDisplay(persons.concat(returnedPerson));
+                  setNewName('');
+                  setNewNumber('');
+                  setFilter('');
+              });
       }
-
-      const personObject = {
-          name: newName,
-          number: newNumber
-      };
-
-      personService
-          .create(personObject)
-          .then(returnedPerson => {
-              setPersons(persons.concat(returnedPerson));
-              setPersonsToDisplay(persons.concat(returnedPerson));
-              setNewName('');
-              setNewNumber('');
-              setFilter('');
-        });
   }
 
   const deletePerson = (person) => {
