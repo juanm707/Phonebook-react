@@ -45,12 +45,25 @@ const Persons = (props) => {
   );
 }
 
+const Notication = ({ message, styleT }) => {
+    if (message === null) {
+        return null;
+    }
+    return (
+        <div className={styleT ? 'error' : 'success'}>
+            {message}
+        </div>
+    );
+}
+
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [filter, setFilter] = useState('');
   const [personsToDisplay, setPersonsToDisplay] = useState([...persons]);
+  const [notification, setNotifcation] = useState(null);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
       personService
@@ -84,12 +97,20 @@ const App = () => {
                   .update(updatedPerson.id, updatedPerson)
                   .then(returnedPerson => {
                       const newPersons = persons.map(p => p.id !== returnedPerson.id ? p : returnedPerson);
-                      
+
                       setPersons(newPersons);
                       setPersonsToDisplay([...newPersons]);
                       setNewName('');
                       setNewNumber('');
                       setFilter('');
+
+                      setNotifcation(
+                          `${returnedPerson.name} was successfully updated`
+                      );
+                      setIsError(false);
+                      setTimeout(() => {
+                          setNotifcation(null)
+                      }, 5000);
                   })
           }
       } else {
@@ -107,6 +128,14 @@ const App = () => {
                   setNewName('');
                   setNewNumber('');
                   setFilter('');
+
+                  setNotifcation(
+                      `${returnedPerson.name} was successfully added`
+                  );
+                  setIsError(false);
+                  setTimeout(() => {
+                      setNotifcation(null)
+                  }, 5000);
               });
       }
   }
@@ -146,14 +175,15 @@ const App = () => {
   }
 
   return (
-    <div style={{paddingLeft:'10px'}}>
-      <h2>Phonebook</h2>
-      <Filter filter={filter} onChange={handleFilter}/>
-      <h3>Add a new</h3>
-      <PersonForm onSubmit={addPerson} newName={newName} newNumber={newNumber} onNameChange={handleNewName} onNumberChange={handleNewNumber}/>
-      <h3>Numbers</h3>
-      <Persons personsToDisplay={personsToDisplay} onDelete={deletePerson}/>
-    </div>
+      <div style={{paddingLeft:'10px'}}>
+        <Notication message={notification} styleT={isError} />
+        <h2>Phonebook</h2>
+        <Filter filter={filter} onChange={handleFilter}/>
+        <h3>Add a new</h3>
+        <PersonForm onSubmit={addPerson} newName={newName} newNumber={newNumber} onNameChange={handleNewName} onNumberChange={handleNewNumber}/>
+        <h3>Numbers</h3>
+        <Persons personsToDisplay={personsToDisplay} onDelete={deletePerson}/>
+      </div>
   );
 }
 
