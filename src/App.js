@@ -112,6 +112,20 @@ const App = () => {
                           setNotifcation(null)
                       }, 5000);
                   })
+                  .catch(error => {
+                      setNotifcation(`Information for ${newName} has already been removed from the server`);
+                      setIsError(true);
+                      setTimeout(() => {
+                          setNotifcation(null)
+                      }, 5000);
+
+                      let newPersons = persons.filter(p1 => {
+                          return p1.id !== updatedPerson.id;
+                      });
+
+                      setPersons(newPersons);
+                      setPersonsToDisplay([...newPersons]);
+                  })
           }
       } else {
 
@@ -141,7 +155,7 @@ const App = () => {
   }
 
   const deletePerson = (person) => {
-      console.log('In deletePerson', person);
+      //console.log('In deletePerson', person);
       if (window.confirm(`Delete ${person.name}?`)) {
           personService
               .erase(person.id)
@@ -152,6 +166,14 @@ const App = () => {
                   console.log('newPersons', newPersons);
                   setPersons(newPersons);
                   setPersonsToDisplay([...newPersons]);
+
+                  setNotifcation(
+                      `${person.name} was successfully deleted`
+                  );
+                  setIsError(false);
+                  setTimeout(() => {
+                      setNotifcation(null)
+                  }, 5000);
               })
               .catch(error => alert(error));
       } else {}
