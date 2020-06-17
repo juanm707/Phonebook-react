@@ -30,9 +30,17 @@ const PersonForm = (props) => {
 }
 
 const Persons = (props) => {
+    console.log(props.personsToDisplay);
   return (
       <div>
-        {props.personsToDisplay.map(person => <p key={person.name}>{person.name} {person.number}</p>)}
+        {props.personsToDisplay.map(person => {
+            console.log('In Persons', person);
+            return (
+                <div key={person.id}>
+                    <p key={person.name}>{person.name} {person.number} <button onClick={() => props.onDelete(person)}>delete</button></p>
+                </div>
+            );
+        })}
       </div>
   );
 }
@@ -88,6 +96,23 @@ const App = () => {
         });
   }
 
+  const deletePerson = (person) => {
+      console.log('In deletePerson', person);
+      if (window.confirm(`Delete ${person.name}?`)) {
+          personService
+              .erase(person.id)
+              .then(() => {
+                  let newPersons = persons.filter(p1 => {
+                      return p1.id !== person.id;
+                  });
+                  console.log('newPersons', newPersons);
+                  setPersons(newPersons);
+                  setPersonsToDisplay([...newPersons]);
+              })
+              .catch(error => alert(error));
+      } else {}
+  }
+
   const handleNewName = (event) => {
     setNewName(event.target.value);
   }
@@ -112,7 +137,7 @@ const App = () => {
       <h3>Add a new</h3>
       <PersonForm onSubmit={addPerson} newName={newName} newNumber={newNumber} onNameChange={handleNewName} onNumberChange={handleNewNumber}/>
       <h3>Numbers</h3>
-      <Persons personsToDisplay={personsToDisplay}/>
+      <Persons personsToDisplay={personsToDisplay} onDelete={deletePerson}/>
     </div>
   );
 }
