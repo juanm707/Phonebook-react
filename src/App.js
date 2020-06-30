@@ -50,7 +50,7 @@ const Notication = ({ message, styleT }) => {
         return null;
     }
     return (
-        <div className={styleT ? 'error' : 'success'}>
+        <div style={{marginTop: '10px'}} className={styleT ? 'error' : 'success'}>
             {message}
         </div>
     );
